@@ -1,47 +1,61 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  let valueCodes: Array<String> = [];
+  let firstCur: string = "USD";
+  let secondCur: string = "RUB";
+  let sum: number = 0;
+  let count: any = 0;
+  let link:string = 'https://open.er-api.com/v6/latest/'
+
+  const getData = async () => {
+    let response = await fetch("https://www.floatrates.com/daily/rub.json");
+
+    if (response.ok) {
+      let json = await response.json();
+      console.log(json);
+      for (let value of Object.keys(json)) {
+        valueCodes = [...valueCodes, value];
+      }
+    } else {
+      alert("Ошибка HTTP: " + response.status);
+    }
+  };
+
+  getData();
+  console.log(valueCodes);
 </script>
 
 <main>
-  <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
+  <h1>КОНВЕРТАТОР</h1>
+  <div class="flex">
+    <ul class="values_list">
+      {#each valueCodes as value}
+        <li on:click={(e) => (firstCur = e.target.innerText)}>
+          {value.toUpperCase()}
+        </li>
+      {/each}
+    </ul>
+    <ul class="values_list">
+      {#each valueCodes as value}
+        <li on:click={(e) => (secondCur = e.target.innerText)}>
+          {value.toUpperCase()}
+        </li>
+      {/each}
+    </ul>
   </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
+  <h4 class="pare">{firstCur}/{secondCur}</h4>
+  <input type="text" bind:value={sum}/>
+  <p>{sum}{secondCur} = {count}{firstCur}</p>
 </main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  .flex {
+    display: flex;
+    justify-content: space-between;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
+
+  .values_list {
+    list-style-type: none;
+    max-height: 300px;
+    overflow-y: scroll;
   }
 </style>
